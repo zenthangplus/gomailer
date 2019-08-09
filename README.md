@@ -34,11 +34,11 @@ type TemplateData struct {
 func main() {
 	// Create the email client
 	client := gomailer.NewClient(
-		"smtp.example.com", // SMTP Host
-		465,// SMTP Port
-		"<your-username>", // SMTP Username
-		"<your-password>", // SMTP Password
-		gomailer.EncryptionTls, // SMTP Encryption
+		"smtp.example.com",     // Host
+		465,                    // Port
+		"<your-username>",      // Username
+		"<your-password>",      // Password
+		gomailer.EncryptionTls, // Encryption
 	)
 	
 	// Create the template
@@ -63,7 +63,7 @@ func main() {
 		return
 	}
 	
-	// Try to send the email
+	// Try to send the message
 	if err := client.Send(message); err != nil {
         fmt.Print("Err could not send mail: ", err)
     } else {

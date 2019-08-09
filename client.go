@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/mail"
 	"net/smtp"
 	"strings"
 )
@@ -24,12 +23,12 @@ type Client struct {
 	username      string
 	password      string
 	encryption    Encryption
-	defaultSender *mail.Address
+	defaultSender *Address
 }
 
 // Email client constructor
 func NewClient(
-	host string, port int, username string, password string, encryption Encryption, defaultSender *mail.Address) *Client {
+	host string, port int, username string, password string, encryption Encryption, defaultSender *Address) *Client {
 	return &Client{
 		host:          host,
 		port:          port,

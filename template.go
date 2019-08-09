@@ -32,32 +32,31 @@ func NewTemplate(file string, config *TemplateConfig) *Template {
 }
 
 // Parse template
-func (t *Template) Parse(data interface{}) (*string, error) {
+func (t *Template) Parse(data interface{}) (string, error) {
 	// Parse root template
 	var err error
 	mainTemplate := template.New("main")
 	if mainTemplate, err = mainTemplate.Parse(TemplateRoot); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Get all template files
 	files, err := t.getFiles()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// Parse template files
 	tmpl, err := mainTemplate.ParseFiles(files...)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var output bytes.Buffer
 	if err := tmpl.Execute(&output, data); err != nil {
-		return nil, err
+		return "", err
 	}
-	body := output.String()
-	return &body, nil
+	return output.String(), nil
 }
 
 // Get all template files (include layouts)

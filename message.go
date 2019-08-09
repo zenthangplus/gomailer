@@ -5,7 +5,7 @@ import (
 	"net/mail"
 )
 
-type Address mail.Address
+type Address = mail.Address
 
 func NewAddress(address string, name string) *Address {
 	return &Address{

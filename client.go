@@ -60,7 +60,9 @@ func (c *Client) sendInsecure(message MessageInterface) error {
 	}
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
-	return smtp.SendMail(c.getAddr(), c.getAuth(), message.GetFrom().String(), message.GetTo(), []byte(*body))
+	return smtp.SendMail(
+		c.getAddr(), c.getAuth(), message.GetFrom().String(), c.parseAddress(message.GetTo()), []byte(*body),
+	)
 }
 
 // Send mail by using tls encryption
@@ -92,8 +94,8 @@ func (c *Client) sendTls(message MessageInterface) error {
 		return err
 	}
 
-	// Set receivers
-	if err = client.Rcpt(strings.Join(message.GetTo(), ",")); err != nil {
+	// Set recipients
+	if err = client.Rcpt(strings.Join(c.parseAddress(message.GetTo()), ",")); err != nil {
 		return err
 	}
 
@@ -149,16 +151,16 @@ func (c *Client) getHeaders(message MessageInterface) (*string, error) {
 	header.Set("From", from.String())
 
 	// Set recipients
-	header.Set("To", strings.Join(message.GetTo(), ","))
+	header.Set("To", strings.Join(c.parseAddress(message.GetTo()), ","))
 
 	// Set Cc
 	if len(message.GetCc()) > 0 {
-		header.Set("Cc", strings.Join(message.GetCc(), ","))
+		header.Set("Cc", strings.Join(c.parseAddress(message.GetCc()), ","))
 	}
 
 	// Set Bcc
 	if len(message.GetBcc()) > 0 {
-		header.Set("Bcc", strings.Join(message.GetBcc(), ","))
+		header.Set("Bcc", strings.Join(c.parseAddress(message.GetBcc()), ","))
 	}
 
 	// Set Subject
@@ -189,4 +191,12 @@ func (c *Client) getBody(message MessageInterface) (*string, error) {
 	// Make raw message
 	body := *headers + "\r\n" + base64.StdEncoding.EncodeToString([]byte(message.GetBody()))
 	return &body, nil
+}
+
+func (c *Client) parseAddress(addressList []*Address) []string {
+	recipients := make([]string, 0)
+	for _, to := range addressList {
+		recipients = append(recipients, to.String())
+	}
+	return recipients
 }

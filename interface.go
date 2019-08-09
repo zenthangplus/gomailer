@@ -6,9 +6,9 @@ import (
 
 type MessageInterface interface {
 	GetFrom() *Address
-	GetTo() []string
-	GetCc() []string
-	GetBcc() []string
+	GetTo() []*Address
+	GetCc() []*Address
+	GetBcc() []*Address
 	GetHeaders() http.Header
 	GetSubject() string
 	GetBody() string

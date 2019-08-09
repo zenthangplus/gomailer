@@ -16,15 +16,15 @@ func NewAddress(address string, name string) *Address {
 
 type Message struct {
 	From    *Address
-	To      []string
-	Cc      []string
-	Bcc     []string
+	To      []*Address
+	Cc      []*Address
+	Bcc     []*Address
 	Headers http.Header
 	Subject string
 	Body    string
 }
 
-func NewMessage(from *Address, to []string, subject string, body string) *Message {
+func NewMessage(from *Address, to []*Address, subject string, body string) *Message {
 	return &Message{
 		From:    from,
 		To:      to,
@@ -37,15 +37,15 @@ func (e *Message) GetFrom() *Address {
 	return e.From
 }
 
-func (e *Message) GetTo() []string {
+func (e *Message) GetTo() []*Address {
 	return e.To
 }
 
-func (e *Message) GetCc() []string {
+func (e *Message) GetCc() []*Address {
 	return e.Cc
 }
 
-func (e *Message) GetBcc() []string {
+func (e *Message) GetBcc() []*Address {
 	return e.Bcc
 }
 

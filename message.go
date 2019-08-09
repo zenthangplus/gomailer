@@ -15,6 +15,15 @@ type Message struct {
 	Body    string
 }
 
+func NewMessage(from *mail.Address, to []string, subject string, body string) *Message {
+	return &Message{
+		From:    from,
+		To:      to,
+		Subject: subject,
+		Body:    body,
+	}
+}
+
 func (e *Message) GetFrom() *mail.Address {
 	return e.From
 }

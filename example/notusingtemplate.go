@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	// Create the email client
 	client := gomailer.NewClient(
 		"smtp.mailtrap.io",
 		465,
@@ -13,6 +14,8 @@ func main() {
 		"<your-password>",
 		gomailer.EncryptionInsecure,
 	)
+
+	// Try to send the email with a simple message
 	if err := client.Send(&gomailer.Message{
 		From:    gomailer.NewAddress("noreply@example.com", "Noreply"),
 		To:      []*gomailer.Address{{Address: "user1@example.com"}, {Address: "user2@example.com"}},

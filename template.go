@@ -23,6 +23,7 @@ type Template struct {
 	config *TemplateConfig
 }
 
+// Template Constructor
 func NewTemplate(file string, config *TemplateConfig) *Template {
 	return &Template{
 		file:   file,
@@ -40,7 +41,7 @@ func (t *Template) Parse(data interface{}) (*string, error) {
 	}
 
 	// Get all template files
-	files, err := t.getTplFiles()
+	files, err := t.getFiles()
 	if err != nil {
 		return nil, err
 	}
@@ -60,8 +61,8 @@ func (t *Template) Parse(data interface{}) (*string, error) {
 }
 
 // Get all template files (include layouts)
-func (t *Template) getTplFiles() ([]string, error) {
-	layoutFiles, err := t.getTplLayoutFiles()
+func (t *Template) getFiles() ([]string, error) {
+	layoutFiles, err := t.getLayoutFiles()
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +71,7 @@ func (t *Template) getTplFiles() ([]string, error) {
 }
 
 // Get all template layouts
-func (t *Template) getTplLayoutFiles() ([]string, error) {
+func (t *Template) getLayoutFiles() ([]string, error) {
 	var scannedFiles []string
 	var err error
 	if len(t.config.LayoutDirectory) > 0 {

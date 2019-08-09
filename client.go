@@ -11,32 +11,45 @@ import (
 	"strings"
 )
 
-type Encryption int
+const (
+	AuthPlain   Auth = 0
+	AuthCramMd5 Auth = 1
 
-const EncryptionInsecure Encryption = 0
-const EncryptionTls Encryption = 1
+	EncryptionInsecure Encryption = 0
+	EncryptionTls      Encryption = 1
+)
+
+type Auth int
+type Encryption int
 
 // Email Client structure
 type Client struct {
-	host          string
-	port          int
-	username      string
-	password      string
-	encryption    Encryption
-	defaultSender *Address
+	host       string
+	port       int
+	username   string
+	password   string
+	encryption Encryption
+	auth       Auth
 }
 
 // Email client constructor
 func NewClient(
-	host string, port int, username string, password string, encryption Encryption, defaultSender *Address) *Client {
+	host string, port int,
+	username string, password string,
+	encryption Encryption,
+) *Client {
 	return &Client{
-		host:          host,
-		port:          port,
-		username:      username,
-		password:      password,
-		encryption:    encryption,
-		defaultSender: defaultSender,
+		host:       host,
+		port:       port,
+		username:   username,
+		password:   password,
+		encryption: encryption,
 	}
+}
+
+// Set auth type for the client
+func (c *Client) SetAuth(auth Auth) {
+	c.auth = auth
 }
 
 // Factory method for sending email
@@ -67,20 +80,16 @@ func (c *Client) sendInsecure(message MessageInterface) error {
 
 // Send mail by using tls encryption
 func (c *Client) sendTls(message MessageInterface) error {
-	// Here is the key, you need to call tls.Dial instead of smtp.Dial
-	// for SMTP servers running on 465 that require an ssl connection
-	// from the very beginning (no starttls)
-	conn, err := tls.Dial("tcp", c.getAddr(), &tls.Config{
-		ServerName:         c.host,
-		InsecureSkipVerify: true,
-	})
+	// Connect to SMTP server
+	client, err := smtp.Dial(c.getAddr())
 	if err != nil {
 		return err
 	}
 
-	// Create new SMTP client
-	client, err := smtp.NewClient(conn, c.host)
-	if err != nil {
+	if err := client.StartTLS(&tls.Config{
+		ServerName:         c.host,
+		InsecureSkipVerify: true,
+	}); err != nil {
 		return err
 	}
 
@@ -125,7 +134,14 @@ func (c *Client) getAddr() string {
 
 // Get authentication config
 func (c *Client) getAuth() smtp.Auth {
-	return smtp.PlainAuth("", c.username, c.password, c.host)
+	switch c.auth {
+	case AuthPlain:
+		return smtp.PlainAuth("", c.username, c.password, c.host)
+	case AuthCramMd5:
+		return smtp.CRAMMD5Auth(c.username, c.password)
+	default:
+		return nil
+	}
 }
 
 // Build email headers from message
@@ -136,19 +152,13 @@ func (c *Client) getHeaders(message MessageInterface) (*string, error) {
 		header = make(http.Header)
 	}
 
-	// Get email sender
-	from := message.GetFrom()
-	if from == nil && c.defaultSender != nil {
-		from = c.defaultSender
-	}
-
 	// Check sender is missing or not?
-	if from == nil {
+	if message.GetFrom() == nil {
 		return nil, errors.New("missing sender")
 	}
 
 	// Set sender
-	header.Set("From", from.String())
+	header.Set("From", message.GetFrom().String())
 
 	// Set recipients
 	header.Set("To", strings.Join(c.parseAddress(message.GetTo()), ","))

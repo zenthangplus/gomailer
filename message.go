@@ -5,8 +5,17 @@ import (
 	"net/mail"
 )
 
+type Address mail.Address
+
+func NewAddress(address string, name string) *Address {
+	return &Address{
+		Address: address,
+		Name:    name,
+	}
+}
+
 type Message struct {
-	From    *mail.Address
+	From    *Address
 	To      []string
 	Cc      []string
 	Bcc     []string
@@ -15,7 +24,7 @@ type Message struct {
 	Body    string
 }
 
-func NewMessage(from *mail.Address, to []string, subject string, body string) *Message {
+func NewMessage(from *Address, to []string, subject string, body string) *Message {
 	return &Message{
 		From:    from,
 		To:      to,
@@ -24,7 +33,7 @@ func NewMessage(from *mail.Address, to []string, subject string, body string) *M
 	}
 }
 
-func (e *Message) GetFrom() *mail.Address {
+func (e *Message) GetFrom() *Address {
 	return e.From
 }
 

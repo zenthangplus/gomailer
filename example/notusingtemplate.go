@@ -10,7 +10,7 @@ func main() {
 		"smtp.mailtrap.io",
 		465,
 		"<your-username>",
-		"<your-username>",
+		"<your-password>",
 		gomailer.EncryptionInsecure,
 	)
 	if err := client.Send(&gomailer.Message{

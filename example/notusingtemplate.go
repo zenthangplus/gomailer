@@ -9,8 +9,8 @@ func main() {
 	client := gomailer.NewClient(
 		"smtp.mailtrap.io",
 		465,
-		"721dc86036af03",
-		"845a3c46baeade",
+		"<your-username>",
+		"<your-username>",
 		gomailer.EncryptionInsecure,
 	)
 	if err := client.Send(&gomailer.Message{

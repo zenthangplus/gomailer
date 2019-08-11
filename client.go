@@ -183,9 +183,17 @@ func (c *Client) getHeaders(message MessageInterface) (*string, error) {
 	// Set Subject
 	header.Set("Subject", message.GetSubject())
 
-	// Set other headers
-	header.Set("MIME-Version", "1.0")
-	header.Set("Content-Type", "text/html; charset=\"utf-8\"")
+	// Set default mime version
+	if _, exists := header["MIME-Version"]; exists == false {
+		header.Set("MIME-Version", "1.0")
+	}
+
+	// Set default content type
+	if _, exists := header["Content-Type"]; exists == false {
+		header.Set("Content-Type", "text/html; charset=\"utf-8\"")
+	}
+
+	// Set encoding type for this mail
 	header.Set("Content-Transfer-Encoding", "base64")
 
 	// Generate headers string

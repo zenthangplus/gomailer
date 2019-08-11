@@ -18,26 +18,26 @@ The following example will help you known how to use this package:
 package main
 
 import (
-	"fmt"
-	"github.com/zenthangplus/gomailer"
+    "fmt"
+    "github.com/zenthangplus/gomailer"
 )
 
 func main() {
-	// Create the email client
-	client := gomailer.NewClient(
-		"smtp.example.com",     // Host
-		465,                    // Port
-		"<your-username>",      // Username
-		"<your-password>",      // Password
-		gomailer.EncryptionTls, // Encryption
-	)
+    // Create the email client
+    client := gomailer.NewClient(
+        "smtp.example.com",     // Host
+        465,                    // Port
+        "<your-username>",      // Username
+        "<your-password>",      // Password
+        gomailer.EncryptionTls, // Encryption
+    )
 	
-	// Create the template
-	template := gomailer.NewTemplate("template/welcome.html", &gomailer.TemplateConfig{
-		LayoutDirectory: "template/layouts",
-	})
+    // Create the template
+    template := gomailer.NewTemplate("template/welcome.html", &gomailer.TemplateConfig{
+        LayoutDirectory: "template/layouts",
+    })
 	
-	// Create the template data
+    // Create the template data
     type User struct {
         FirstName string
         LastName  string
@@ -49,24 +49,23 @@ func main() {
         },
     }
 	
-	// Create the message using the template
-	message, err := gomailer.NewTemplateMessage(&gomailer.Message{
-		From:    gomailer.NewAddress("noreply@example.com", "Example"),
-		To:      []*gomailer.Address{{Address: "user1@example.com"}, {Address: "user2@example.com"}},
-		Subject: "Welcome to GoMailer",
-	}, template, templateData)
-	if err != nil {
-		fmt.Print("Err could not make template message: ", err)
-		return
-	}
+    // Create the message using the template
+    message, err := gomailer.NewTemplateMessage(&gomailer.Message{
+        From:    gomailer.NewAddress("noreply@example.com", "Example"),
+        To:      []*gomailer.Address{{Address: "user1@example.com"}, {Address: "user2@example.com"}},
+        Subject: "Welcome to GoMailer",
+    }, template, templateData)
+    if err != nil {
+        fmt.Print("Err could not make template message: ", err)
+        return
+    }
 	
-	// Try to send the message
-	if err := client.Send(message); err != nil {
+    // Try to send the message
+    if err := client.Send(message); err != nil {
         fmt.Print("Err could not send mail: ", err)
     } else {
         fmt.Print("Success")
     }
-
 }
 
 ```

@@ -14,6 +14,16 @@ func NewAddress(address string, name string) *Address {
 	}
 }
 
+type MessageInterface interface {
+	GetFrom() *Address
+	GetTo() []*Address
+	GetCc() []*Address
+	GetBcc() []*Address
+	GetHeaders() http.Header
+	GetSubject() string
+	GetBody() string
+}
+
 type Message struct {
 	From    *Address
 	To      []*Address

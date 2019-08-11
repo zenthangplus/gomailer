@@ -11,15 +11,22 @@ import (
 	"strings"
 )
 
+// List of auth types
 const (
 	AuthPlain   Auth = 0
 	AuthCramMd5 Auth = 1
+)
 
+// List of encryption types
+const (
 	EncryptionInsecure Encryption = 0
 	EncryptionTls      Encryption = 1
 )
 
+// Auth type
 type Auth int
+
+// Encryption type
 type Encryption int
 
 // Email Client structure

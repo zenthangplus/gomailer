@@ -12,7 +12,7 @@ $ go get -u github.com/zenthangplus/gomailer
 
 ## Usage
 
-The following example will help you known how to use this package:
+The following example will help you know how to use this package:
 
 ```go
 package main

@@ -22,15 +22,6 @@ import (
 	"github.com/zenthangplus/gomailer"
 )
 
-type User struct {
-	FirstName string
-	LastName  string
-}
-
-type TemplateData struct {
-	User *User
-}
-
 func main() {
 	// Create the email client
 	client := gomailer.NewClient(
@@ -47,10 +38,16 @@ func main() {
 	})
 	
 	// Create the template data
-	templateData := TemplateData{User: &User{
-		FirstName: "Go",
-		LastName:  "Lang",
-	}}
+    type User struct {
+        FirstName string
+        LastName  string
+    }
+    templateData := map[string]interface{}{
+        "User": User{
+            FirstName: "Go",
+            LastName:  "Lang",
+        },
+    }
 	
 	// Create the message using the template
 	message, err := gomailer.NewTemplateMessage(&gomailer.Message{
@@ -69,6 +66,7 @@ func main() {
     } else {
         fmt.Print("Success")
     }
+
 }
 
 ```

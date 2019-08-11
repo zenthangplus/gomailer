@@ -8,7 +8,7 @@ import (
 func main() {
 	// Create the email client
 	client := gomailer.NewClient(
-		"smtp.mailtrap.io",
+		"smtp.example.com",
 		465,
 		"<your-username>",
 		"<your-password>",

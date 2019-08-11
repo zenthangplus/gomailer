@@ -23,7 +23,7 @@ import (
 )
 
 func main() {
-    // Create the email client
+    // 1. Create the email client
     client := gomailer.NewClient(
         "smtp.example.com",     // Host
         465,                    // Port
@@ -32,12 +32,12 @@ func main() {
         gomailer.EncryptionTls, // Encryption
     )
 	
-    // Create the template
+    // 2. Create the template
     template := gomailer.NewTemplate("template/welcome.html", &gomailer.TemplateConfig{
         LayoutDirectory: "template/layouts",
     })
 	
-    // Create the template data
+    // 3. Create the template data
     type User struct {
         FirstName string
         LastName  string
@@ -49,7 +49,7 @@ func main() {
         },
     }
 	
-    // Create the message using the template
+    // 4. Create the message using the template
     message, err := gomailer.NewTemplateMessage(&gomailer.Message{
         From:    gomailer.NewAddress("noreply@example.com", "Example"),
         To:      []*gomailer.Address{{Address: "user1@example.com"}, {Address: "user2@example.com"}},
@@ -60,7 +60,7 @@ func main() {
         return
     }
 	
-    // Try to send the message
+    // 5. Try to send the message
     if err := client.Send(message); err != nil {
         fmt.Print("Err could not send mail: ", err)
     } else {

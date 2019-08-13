@@ -19,8 +19,8 @@ const (
 
 // List of encryption types
 const (
-	EncryptionInsecure Encryption = 0
-	EncryptionTls      Encryption = 1
+	EncryptionInsecure string = ""
+	EncryptionTls      string = "tls"
 )
 
 // Auth type
@@ -35,15 +35,17 @@ type Client struct {
 	port       int
 	username   string
 	password   string
-	encryption Encryption
+	encryption string
 	auth       Auth
 }
 
 // Email client constructor
 func NewClient(
-	host string, port int,
-	username string, password string,
-	encryption Encryption,
+	host string,
+	port int,
+	username string,
+	password string,
+	encryption string,
 ) *Client {
 	return &Client{
 		host:       host,

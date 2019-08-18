@@ -1,6 +1,6 @@
 # Go Mailer
 
-Mailer package for Golang supports sending SMTP email using [template](https://golang.org/pkg/html/template/).
+Mailer package for Golang supports sending SMTP email using [html/template](https://golang.org/pkg/html/template/).
 
 ## Installation
 
@@ -13,6 +13,8 @@ $ go get -u github.com/zenthangplus/gomailer
 ## Usage
 
 The following example will help you know how to use this package:
+
+> Note: Go to [example](/example) directory to see more examples.
 
 ```go
 package main
@@ -33,19 +35,21 @@ func main() {
     )
 	
     // 2. Create the template
+    // The first argument is the template path
+    // The second argument is the config for your template. 
+    // Such as: LayoutFiles, LayoutDirectory, LayoutExtension (available when using LayoutDirectory).
+    // These layout files will be included to your template.
+    // @see https://golang.org/pkg/html/template/
     template := gomailer.NewTemplate("template/welcome.html", &gomailer.TemplateConfig{
         LayoutDirectory: "template/layouts",
     })
 	
     // 3. Create the template data
-    type User struct {
-        FirstName string
-        LastName  string
-    }
+    // You can use Map or Struct here. It is flexible.
     templateData := map[string]interface{}{
-        "User": User{
-            FirstName: "Go",
-            LastName:  "Lang",
+        "User": map[string]string{
+            "FirstName": "Go",
+            "LastName":  "Lang",
         },
     }
 	
@@ -67,7 +71,4 @@ func main() {
         fmt.Print("Success")
     }
 }
-
 ```
-
-> Go to [example](/example) directory to see more examples.

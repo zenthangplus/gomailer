@@ -108,7 +108,7 @@ func (c *Client) sendTls(message MessageInterface) error {
 	}
 
 	// Set sender
-	if err = client.Mail(message.GetFrom().String()); err != nil {
+	if err = client.Mail(message.GetFrom().Address); err != nil {
 		return err
 	}
 
@@ -224,7 +224,7 @@ func (c *Client) getBody(message MessageInterface) (*string, error) {
 func (c *Client) parseAddressList(addressList []*Address) []string {
 	recipients := make([]string, 0)
 	for _, to := range addressList {
-		recipients = append(recipients, to.String())
+		recipients = append(recipients, to.Address)
 	}
 	return recipients
 }

@@ -26,13 +26,13 @@ import (
 
 func main() {
     // 1. Create the email client
-    client := gomailer.NewClient(
-        "smtp.example.com",     // Host
-        465,                    // Port
-        "<your-username>",      // Username
-        "<your-password>",      // Password
-        gomailer.EncryptionTls, // Encryption
-    )
+    client := gomailer.Client{
+        Host:       "smtp.example.com",
+        Port:       465,
+        Username:   "<your-username>",
+        Password:   "<your-password>",
+        Encryption: gomailer.EncryptionTls,
+    }
 	
     // 2. Create the template
     // The first argument is the template path

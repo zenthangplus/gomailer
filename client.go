@@ -13,8 +13,8 @@ import (
 
 // List of auth types
 const (
-	AuthPlain   Auth = 0
-	AuthCramMd5 Auth = 1
+	AuthPlain   AuthType = 0
+	AuthCramMd5 AuthType = 1
 )
 
 // List of encryption types
@@ -24,46 +24,38 @@ const (
 )
 
 // Auth type
-type Auth int
+type AuthType int
 
 // Encryption type
 type Encryption int
 
 // Email Client structure
 type Client struct {
-	host       string
-	port       int
-	username   string
-	password   string
-	encryption string
-	auth       Auth
-}
-
-// Email client constructor
-func NewClient(
-	host string,
-	port int,
-	username string,
-	password string,
-	encryption string,
-) *Client {
-	return &Client{
-		host:       host,
-		port:       port,
-		username:   username,
-		password:   password,
-		encryption: encryption,
-	}
-}
-
-// Set auth type for the client
-func (c *Client) SetAuth(auth Auth) {
-	c.auth = auth
+	Host       string
+	Port       int
+	Username   string
+	Password   string
+	Encryption string
+	AuthType   AuthType
+	addr       string
+	auth       smtp.Auth
 }
 
 // Factory method for sending email
 func (c *Client) Send(message MessageInterface) error {
-	switch c.encryption {
+	// Get server address from host and port
+	c.addr = fmt.Sprintf("%s:%d", c.Host, c.Port)
+
+	// Get SMTP Auth config
+	switch c.AuthType {
+	case AuthPlain:
+		c.auth = smtp.PlainAuth("", c.Username, c.Password, c.Host)
+	case AuthCramMd5:
+		c.auth = smtp.CRAMMD5Auth(c.Username, c.Password)
+	}
+
+	// Send the message
+	switch c.Encryption {
 	case EncryptionTls:
 		return c.sendTls(message)
 	case EncryptionInsecure:
@@ -83,27 +75,34 @@ func (c *Client) sendInsecure(message MessageInterface) error {
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
 	return smtp.SendMail(
-		c.getAddr(), c.getAuth(), message.GetFrom().String(), c.parseAddressList(message.GetTo()), []byte(*body),
+		c.addr,
+		c.auth,
+		message.GetFrom().Address,
+		c.parseAddressList(message.GetTo(), false),
+		[]byte(*body),
 	)
 }
 
 // Send mail by using tls encryption
 func (c *Client) sendTls(message MessageInterface) error {
 	// Connect to SMTP server
-	client, err := smtp.Dial(c.getAddr())
+	client, err := smtp.Dial(c.addr)
 	if err != nil {
 		return err
 	}
+	defer func() {
+		_ = client.Close()
+	}()
 
 	if err := client.StartTLS(&tls.Config{
-		ServerName:         c.host,
+		ServerName:         c.Host,
 		InsecureSkipVerify: true,
 	}); err != nil {
 		return err
 	}
 
 	// Authenticate
-	if err = client.Auth(c.getAuth()); err != nil {
+	if err = client.Auth(c.auth); err != nil {
 		return err
 	}
 
@@ -113,7 +112,7 @@ func (c *Client) sendTls(message MessageInterface) error {
 	}
 
 	// Set recipients
-	if err = client.Rcpt(strings.Join(c.parseAddressList(message.GetTo()), ", ")); err != nil {
+	if err = client.Rcpt(strings.Join(c.parseAddressList(message.GetTo(), false), ", ")); err != nil {
 		return err
 	}
 
@@ -136,23 +135,6 @@ func (c *Client) sendTls(message MessageInterface) error {
 	return client.Quit()
 }
 
-// Get server address from host and port
-func (c *Client) getAddr() string {
-	return fmt.Sprintf("%s:%d", c.host, c.port)
-}
-
-// Get authentication config
-func (c *Client) getAuth() smtp.Auth {
-	switch c.auth {
-	case AuthPlain:
-		return smtp.PlainAuth("", c.username, c.password, c.host)
-	case AuthCramMd5:
-		return smtp.CRAMMD5Auth(c.username, c.password)
-	default:
-		return nil
-	}
-}
-
 // Build email headers from message
 func (c *Client) getHeaders(message MessageInterface) (*string, error) {
 	// Init header variable
@@ -170,16 +152,16 @@ func (c *Client) getHeaders(message MessageInterface) (*string, error) {
 	header.Set("From", message.GetFrom().String())
 
 	// Set recipients
-	header.Set("To", strings.Join(c.parseAddressList(message.GetTo()), ", "))
+	header.Set("To", strings.Join(c.parseAddressList(message.GetTo(), true), ", "))
 
 	// Set Cc
 	if len(message.GetCc()) > 0 {
-		header.Set("Cc", strings.Join(c.parseAddressList(message.GetCc()), ", "))
+		header.Set("Cc", strings.Join(c.parseAddressList(message.GetCc(), true), ", "))
 	}
 
 	// Set Bcc
 	if len(message.GetBcc()) > 0 {
-		header.Set("Bcc", strings.Join(c.parseAddressList(message.GetBcc()), ", "))
+		header.Set("Bcc", strings.Join(c.parseAddressList(message.GetBcc(), true), ", "))
 	}
 
 	// Set Subject
@@ -221,10 +203,14 @@ func (c *Client) getBody(message MessageInterface) (*string, error) {
 }
 
 // Parse email address list to list of address (in string)
-func (c *Client) parseAddressList(addressList []*Address) []string {
+func (c *Client) parseAddressList(addressList []*Address, formatRfc5322 bool) []string {
 	recipients := make([]string, 0)
 	for _, to := range addressList {
-		recipients = append(recipients, to.Address)
+		formattedAddr := to.Address
+		if formatRfc5322 == true {
+			formattedAddr = to.String()
+		}
+		recipients = append(recipients, formattedAddr)
 	}
 	return recipients
 }

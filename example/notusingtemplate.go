@@ -7,13 +7,13 @@ import (
 
 func main() {
 	// Create the email client
-	client := gomailer.NewClient(
-		"smtp.example.com",
-		465,
-		"<your-username>",
-		"<your-password>",
-		gomailer.EncryptionInsecure,
-	)
+	client := gomailer.Client{
+		Host:       "smtp.example.com",
+		Port:       465,
+		Username:   "<your-username>",
+		Password:   "<your-password>",
+		Encryption: gomailer.EncryptionTls,
+	}
 
 	// Try to send the email with a simple message
 	if err := client.Send(&gomailer.Message{
